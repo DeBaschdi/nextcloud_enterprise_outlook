@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F5F857C5-4103-445B-B121-5E0CF10D8D57}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>NcTalkOutlookAddIn</RootNamespace>
+    <AssemblyName>NcTalkOutlookAddIn</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <RegisterForComInterop>false</RegisterForComInterop>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Extensibility, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <EmbedInteropTypes>true</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Microsoft.Office.Interop.Outlook, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <EmbedInteropTypes>true</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="office, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <EmbedInteropTypes>true</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="stdole, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="NextcloudTalkAddIn.cs" />
+    <Compile Include="Settings\AddinSettings.cs" />
+    <Compile Include="Settings\AuthenticationMode.cs" />
+    <Compile Include="Settings\SettingsStorage.cs" />
+    <Compile Include="Models\TalkRoomType.cs" />
+    <Compile Include="Models\TalkRoomRequest.cs" />
+    <Compile Include="Models\TalkRoomCreationResult.cs" />
+    <Compile Include="Models\FileLinkPermissions.cs" />
+    <Compile Include="Models\FileLinkSelection.cs" />
+    <Compile Include="Models\FileLinkRequest.cs" />
+    <Compile Include="Models\FileLinkResult.cs" />
+    <Compile Include="Models\FileLinkProgress.cs" />
+    <Compile Include="Models\FileLinkUploadStatus.cs" />
+    <Compile Include="Models\FileLinkUploadItemProgress.cs" />
+    <Compile Include="Services\FreeBusyManager.cs" />
+    <Compile Include="Services\FreeBusyServer.cs" />
+    <Compile Include="Services\IfbAddressBookCache.cs" />
+    <Compile Include="Services\TalkLoginFlowService.cs" />
+    <Compile Include="Services\TalkServiceConfiguration.cs" />
+    <Compile Include="Services\TalkServiceException.cs" />
+    <Compile Include="Services\TalkService.cs" />
+    <Compile Include="Services\FileLinkDuplicateInfo.cs" />
+    <Compile Include="Services\FileLinkUploadContext.cs" />
+    <Compile Include="Services\FileLinkService.cs" />
+    <Compile Include="UI\SettingsForm.cs" />
+    <Compile Include="UI\TalkLinkForm.cs" />
+    <Compile Include="UI\FileLinkWizardForm.cs" />
+    <Compile Include="Utilities\DiagnosticsLogger.cs" />
+    <Compile Include="Utilities\NextcloudVersionHelper.cs" />
+    <Compile Include="Utilities\Strings.cs" />
+    <Compile Include="Utilities\FileLinkHtmlBuilder.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\talk-96.png" />
+    <EmbeddedResource Include="Resources\nextcloud-filelink.png" />
+    <EmbeddedResource Include="Resources\logo-nextcloud.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <Content Include="LICENSE.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
