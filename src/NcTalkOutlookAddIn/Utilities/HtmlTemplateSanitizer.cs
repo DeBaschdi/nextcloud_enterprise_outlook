@@ -78,11 +78,11 @@ namespace NcTalkOutlookAddIn.Utilities
             "footer"
         };
 
-        // DOMPurify v3.3.1 (vendored in Thunderbird) html profile lists from vendor/purify.js:
-        // - html$1 (tags)
-        // - html (attributes)
-        // TB runtime applies USE_PROFILES: { html: true }, ALLOW_DATA_ATTR: false,
-        // then FORBID_TAGS + ADD_ATTR + ADD_TAGS.
+        // HTML-profile snapshot mirrored from Thunderbird's bundled DOMPurify.
+        // Keep the mail-layout tokens used by both clients (including table,
+        // tbody, nobr, and nowrap) aligned when the bundled sanitizer changes.
+        // Thunderbird applies USE_PROFILES: { html: true }, ALLOW_DATA_ATTR:
+        // false, then FORBID_TAGS + ADD_ATTR + ADD_TAGS.
         private static readonly string[] DomPurifyHtmlProfileTags = ParseTokenList(@"
 a abbr acronym address area article aside audio b bdi bdo big blink blockquote body br button canvas caption center cite code col colgroup content data datalist dd decorator del details dfn dialog dir div dl dt element em fieldset figcaption figure font footer form h1 h2 h3 h4 h5 h6 head header hgroup hr html i img input ins kbd label legend li main map mark marquee menu menuitem meter nav nobr ol optgroup option output p picture pre progress q rp rt ruby s samp search section select shadow slot small source spacer span strike strong style sub summary sup table tbody td template textarea tfoot th thead time tr track tt u ul var video wbr #text
 ");

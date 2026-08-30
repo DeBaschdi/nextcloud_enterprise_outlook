@@ -230,6 +230,7 @@
     <Compile Include="Utilities\HttpFailureDiagnostics.cs" />
     <Compile Include="Utilities\NcJson.cs" />
     <Compile Include="Utilities\FileLinkHtmlBuilder.cs" />
+    <Compile Include="Utilities\HtmlNoBreakEncoder.cs" />
     <Compile Include="Utilities\HtmlToPlainTextConverter.cs" />
     <Compile Include="Utilities\HtmlTemplateSanitizer.cs" />
     <Compile Include="Utilities\PlainTextUtilities.cs" />
@@ -246,6 +247,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\app.png" />
     <EmbeddedResource Include="Resources\header-solid-blue-164x48.png" />
+    <EmbeddedResource Include="Resources\header-transparent-164x48.png" />
     <EmbeddedResource Include="Resources\_locales\**\messages.json" />
   </ItemGroup>
   <ItemGroup>

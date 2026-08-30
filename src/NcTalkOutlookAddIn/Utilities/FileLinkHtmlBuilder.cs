@@ -24,6 +24,9 @@ namespace NcTalkOutlookAddIn.Utilities
         private const string ShareTemplateKey = "share_html_block_template";
         private const string ShareTemplateV2Key = "share_html_block_template_v2";
         private const string ShareTemplateEffectiveLanguageKey = "share_html_block_effective_language";
+        // Outlook's Word renderer ignores div padding and interprets ch widths differently.
+        // A fixed table column keeps the built-in block aligned with Thunderbird.
+        private const int FieldLabelWidth = 124;
         private static readonly Lazy<string> HeaderBase64 = new Lazy<string>(LoadHeaderBase64);
 
                 // Creates the HTML block including branding and share information.
@@ -88,7 +91,7 @@ namespace NcTalkOutlookAddIn.Utilities
                     HttpUtility.HtmlEncode(request.Note));
             }
             builder.AppendLine("<p style=\"margin:0 0 14px 0;line-height:1.4;\">" + HttpUtility.HtmlEncode(intro) + "<br /></p>");
-            builder.AppendLine("<table style=\"width:100%;border-collapse:collapse;margin-bottom:10px;\">");
+            AppendFieldTableStart(builder);
 
             string linkUrl = zipDownloadLink
                 ? BuildAttachmentZipDownloadUrl(result.ShareUrl, result.ShareToken)
@@ -109,7 +112,16 @@ namespace NcTalkOutlookAddIn.Utilities
             }
             if (result.ExpireDate.HasValue)
             {
-                AppendRow(builder, expireLabel, HttpUtility.HtmlEncode(result.ExpireDate.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)));
+                string expirationDateText =
+                    result.ExpireDate.Value.ToString(
+                        "yyyy-MM-dd",
+                        CultureInfo.InvariantCulture);
+
+                AppendRow(
+                    builder,
+                    expireLabel,
+                    HtmlNoBreakEncoder.EncodeDateTime(
+                        expirationDateText));
             }
             if (!attachmentMode)
             {
@@ -117,7 +129,7 @@ namespace NcTalkOutlookAddIn.Utilities
             }
 
             builder.AppendLine("</table>");
-            builder.AppendLine("</div>");
+            AppendOutlookContentEnd(builder);
             string nextcloudLink = string.Format(CultureInfo.InvariantCulture, "<a href=\"https://nextcloud.com/\" style=\"color:{0};text-decoration:none;\">Nextcloud</a>", brandBlue);
             AppendOutlookFrameEnd(
                 builder,
@@ -170,12 +182,12 @@ namespace NcTalkOutlookAddIn.Utilities
                 brandBlue,
                 closeHeaderAnchorOnImageLine: false);
             builder.AppendLine("<p style=\"margin:0 0 14px 0;line-height:1.4;\">" + HttpUtility.HtmlEncode(intro) + "<br /></p>");
-            builder.AppendLine("<table style=\"width:100%;border-collapse:collapse;margin-bottom:10px;\">");
+            AppendFieldTableStart(builder);
             AppendRow(builder, passwordLabel, secretLink
                 ? BuildSecretLinkValueHtml(result.Password, secretLinkLabel, brandBlue)
                 : BuildPasswordValueHtml(result.Password));
             builder.AppendLine("</table>");
-            builder.AppendLine("</div>");
+            AppendOutlookContentEnd(builder);
             AppendOutlookFrameEnd(builder, null);
             return builder.ToString();
         }
@@ -410,6 +422,10 @@ namespace NcTalkOutlookAddIn.Utilities
                         Strings.GetInLanguage(effectiveLanguage, "sharing_html_secret_link_label", "Secret link"),
                         BrandingAssets.BrandBlueHex)
                     : HttpUtility.HtmlEncode(values.Password);
+
+            // Policy placeholders may occur in either visible content or HTML attributes.
+            // Keep replacements context-neutral and attribute-safe until the template
+            // renderer supports context-aware substitution.
             string html = ReplacePolicyTemplatePlaceholders(
                 template,
                 attachmentMode,
@@ -766,16 +782,16 @@ namespace NcTalkOutlookAddIn.Utilities
             bool closeHeaderAnchorOnImageLine)
         {
             builder.AppendLine("<div style=\"font-family:Calibri,'Segoe UI',Arial,sans-serif;font-size:11pt;margin:16px 0;\">");
-            builder.AppendLine("<table role=\"presentation\" width=\"640\" style=\"border-collapse:separate;border-spacing:0;width:640px;margin:0;background-color:transparent;border:1px solid #d7d7db;border-radius:8px;overflow:hidden;\">");
+            builder.AppendLine("<table role=\"presentation\" width=\"640\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" style=\"border-collapse:separate;border-spacing:0;width:640px;margin:0;background-color:transparent;border:1px solid #d7d7db;border-radius:8px;overflow:hidden;\">");
             builder.AppendLine("<tr>");
-            builder.AppendLine("<td style=\"padding:0;\">");
-            builder.AppendLine("<table role=\"presentation\" width=\"640\" style=\"border-collapse:collapse;width:640px;margin:0;background-color:transparent;\">");
+            builder.AppendLine("<td valign=\"top\" style=\"padding:0;vertical-align:top;\">");
+            builder.AppendLine("<table role=\"presentation\" width=\"640\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" style=\"border-collapse:collapse;width:640px;margin:0;background-color:transparent;\">");
             builder.AppendLine("<tr>");
             builder.AppendFormat(CultureInfo.InvariantCulture, "<td height=\"32\" bgcolor=\"{0}\" style=\"padding:0;background-color:{0};text-align:center;height:32px;line-height:0;font-size:0;mso-line-height-rule:exactly;\">", brandBlue);
             builder.AppendLine();
             builder.AppendFormat(
                 CultureInfo.InvariantCulture,
-                "<a href=\"{0}\" style=\"display:block;text-decoration:none;line-height:0;font-size:0;\" target=\"_blank\" rel=\"noopener\">",
+                "<a href=\"{0}\" style=\"display:inline-block;text-decoration:none;line-height:0;font-size:0;vertical-align:middle;\" target=\"_blank\" rel=\"noopener\">",
                 HomepageUrl);
             builder.AppendLine();
             builder.AppendFormat(
@@ -790,7 +806,21 @@ namespace NcTalkOutlookAddIn.Utilities
             builder.AppendLine("</td>");
             builder.AppendLine("</tr>");
             builder.AppendLine("</table>");
-            builder.AppendLine("<div style=\"padding:18px 18px 12px 18px;\">");
+            builder.AppendLine("<table role=\"presentation\" width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" style=\"border-collapse:collapse;width:100%;margin:0;background-color:transparent;\">");
+            builder.AppendLine("<tr>");
+            builder.AppendLine("<td valign=\"top\" style=\"padding:18px 18px 22px 18px;vertical-align:top;font-family:Calibri,'Segoe UI',Arial,sans-serif;font-size:11pt;\">");
+        }
+
+        private static void AppendFieldTableStart(StringBuilder builder)
+        {
+            builder.AppendLine("<table role=\"presentation\" width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" style=\"width:100%;border-collapse:collapse;margin:0;\">");
+        }
+
+        private static void AppendOutlookContentEnd(StringBuilder builder)
+        {
+            builder.AppendLine("</td>");
+            builder.AppendLine("</tr>");
+            builder.AppendLine("</table>");
         }
 
         private static void AppendOutlookFrameEnd(
@@ -799,9 +829,13 @@ namespace NcTalkOutlookAddIn.Utilities
         {
             if (footerHtml != null)
             {
-                builder.AppendLine("<div style=\"padding:10px 18px 16px 18px;font-size:9pt;font-style:italic;\">");
+                builder.AppendLine("<table role=\"presentation\" width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" style=\"border-collapse:collapse;width:100%;margin:0;background-color:transparent;\">");
+                builder.AppendLine("<tr>");
+                builder.AppendLine("<td valign=\"top\" style=\"padding:10px 18px 16px 18px;font-family:Calibri,'Segoe UI',Arial,sans-serif;font-size:9pt;font-style:italic;vertical-align:top;\">");
                 builder.AppendLine(footerHtml);
-                builder.AppendLine("</div>");
+                builder.AppendLine("</td>");
+                builder.AppendLine("</tr>");
+                builder.AppendLine("</table>");
             }
             builder.AppendLine("</td>");
             builder.AppendLine("</tr>");
@@ -812,12 +846,15 @@ namespace NcTalkOutlookAddIn.Utilities
                 // Adds a table row with label and content.
         private static void AppendRow(StringBuilder builder, string label, string valueHtml)
         {
+            string encodedLabel = HtmlNoBreakEncoder.EncodeFieldLabel(label ?? string.Empty);
+
             builder.AppendLine("<tr>");
             builder.AppendFormat(
                 CultureInfo.InvariantCulture,
-                "<th style=\"text-align:left;width:12ch;vertical-align:top;padding:6px 10px 6px 0;\">{0}</th>",
-                HttpUtility.HtmlEncode(label));
-            builder.Append("<td style=\"padding:6px 0;max-width:50ch;word-break:break-word;\">");
+                "<th width=\"{0}\" valign=\"top\" style=\"text-align:left;width:{0}px;vertical-align:top;padding:6px 10px 6px 0;font-family:Calibri,'Segoe UI',Arial,sans-serif;font-size:11pt;\">{1}</th>",
+                FieldLabelWidth,
+                encodedLabel);
+            builder.Append("<td valign=\"top\" style=\"padding:6px 0;max-width:50ch;word-break:break-word;vertical-align:top;font-family:Calibri,'Segoe UI',Arial,sans-serif;font-size:11pt;\">");
             builder.Append(valueHtml ?? string.Empty);
             builder.Append("</td>");
             builder.AppendLine("</tr>");
@@ -892,39 +929,43 @@ namespace NcTalkOutlookAddIn.Utilities
         private static string BuildPermissions(FileLinkPermissionFlags permissions, string readLabel, string createLabel, string writeLabel, string deleteLabel)
         {
             var builder = new StringBuilder();
-            builder.Append("<table style=\"border-collapse:collapse;\">");
-            builder.Append("<tr>");
-            AppendPermissionCell(builder, readLabel, (permissions & FileLinkPermissionFlags.Read) == FileLinkPermissionFlags.Read);
-            AppendPermissionCell(builder, createLabel, (permissions & FileLinkPermissionFlags.Create) == FileLinkPermissionFlags.Create);
-            AppendPermissionCell(builder, writeLabel, (permissions & FileLinkPermissionFlags.Write) == FileLinkPermissionFlags.Write);
-            AppendPermissionCell(builder, deleteLabel, (permissions & FileLinkPermissionFlags.Delete) == FileLinkPermissionFlags.Delete);
-            builder.Append("</tr>");
+            builder.Append("<table role=\"presentation\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" style=\"border-collapse: collapse; width: auto; margin: 0; font-family: Calibri, 'Segoe UI', Arial, sans-serif; font-size: 11pt;\">");
+            builder.Append("<tbody><tr>");
+            AppendPermissionCell(builder, readLabel, (permissions & FileLinkPermissionFlags.Read) == FileLinkPermissionFlags.Read, false);
+            AppendPermissionCell(builder, createLabel, (permissions & FileLinkPermissionFlags.Create) == FileLinkPermissionFlags.Create, false);
+            AppendPermissionCell(builder, writeLabel, (permissions & FileLinkPermissionFlags.Write) == FileLinkPermissionFlags.Write, false);
+            AppendPermissionCell(builder, deleteLabel, (permissions & FileLinkPermissionFlags.Delete) == FileLinkPermissionFlags.Delete, true);
+            builder.Append("</tr></tbody>");
             builder.Append("</table>");
             return builder.ToString();
         }
 
                 // Builds the cell for a single permission.
-        private static void AppendPermissionCell(StringBuilder builder, string label, bool enabled)
+        private static void AppendPermissionCell(StringBuilder builder, string label, bool enabled, bool isLast)
         {
-            builder.Append("<td style=\"padding:0 18px 6px 0;\">");
-            builder.Append("<span style=\"display:inline-flex;align-items:center;\">");
+            string color = enabled ? BrandingAssets.BrandBlueHex : "#c62828";
+            string padding = isLast ? "0" : "0 12px 0 0";
             builder.AppendFormat(
                 CultureInfo.InvariantCulture,
-                "<span style=\"display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border:1px solid {0};color:{0};font-size:13px;font-weight:700;\">{1}</span>",
-                enabled ? BrandingAssets.BrandBlueHex : "#c62828",
+                "<td nowrap=\"nowrap\" valign=\"middle\" style=\"padding: {0}; white-space: nowrap; vertical-align: middle; font-family: Calibri, 'Segoe UI', Arial, sans-serif; font-size: 11pt;\">",
+                padding);
+            builder.Append("<table role=\"presentation\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" style=\"border-collapse: collapse; width: auto; margin: 0;\"><tbody><tr>");
+            builder.AppendFormat(
+                CultureInfo.InvariantCulture,
+                "<td width=\"14\" height=\"14\" valign=\"middle\" style=\"width: 14px; height: 14px; padding: 0; vertical-align: middle;\"><table role=\"presentation\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" width=\"14\" height=\"14\" style=\"border-collapse: collapse; width: 14px; height: 14px; margin: 0;\"><tbody><tr><td width=\"14\" height=\"14\" align=\"center\" valign=\"middle\" style=\"width: 14px; height: 14px; border: 1px solid {0}; color: {0}; font-size: 11px; font-weight: 700; line-height: 14px; padding: 0; text-align: center; vertical-align: middle;\">{1}</td></tr></tbody></table></td>",
+                color,
                 enabled ? "&#10003;" : "&#10007;");
             builder.AppendFormat(
                 CultureInfo.InvariantCulture,
-                "<span style=\"padding-left:6px;font-weight:600;\">{0}</span>",
+                "<td nowrap=\"nowrap\" valign=\"middle\" style=\"padding-left: 5px; white-space: nowrap; font-family: Calibri, 'Segoe UI', Arial, sans-serif; font-size: 11pt; font-weight: 600; vertical-align: middle;\">{0}</td>",
                 HttpUtility.HtmlEncode(label));
-            builder.Append("</span>");
-            builder.Append("</td>");
+            builder.Append("</tr></tbody></table></td>");
         }
 
                 // Loads the embedded header banner as a Base64 string.
         private static string LoadHeaderBase64()
         {
-            const string resource = "NcTalkOutlookAddIn.Resources.header-solid-blue-164x48.png";
+            const string resource = "NcTalkOutlookAddIn.Resources.header-transparent-164x48.png";
             using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resource))
             {
                 if (stream == null)
