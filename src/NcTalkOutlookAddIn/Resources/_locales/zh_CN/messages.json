@@ -1015,5 +1015,65 @@
   },
   "options_update_changelog_fixed": {
     "message": "修复"
+  },
+  "outlook_nextcloud_picker_load_failed": {
+    "message": "无法加载 Nextcloud 文件夹。"
+  },
+  "outlook_sharing_source_my_nextcloud": {
+    "message": "我的 Nextcloud"
+  },
+  "outlook_nextcloud_picker_files_title": {
+    "message": "选择文件"
+  },
+  "outlook_nextcloud_picker_folder_title": {
+    "message": "选择文件夹"
+  },
+  "outlook_nextcloud_picker_filter_placeholder": {
+    "message": "按名称筛选..."
+  },
+  "outlook_nextcloud_picker_account_format": {
+    "message": "Nextcloud：$1"
+  },
+  "outlook_nextcloud_picker_column_name": {
+    "message": "名称"
+  },
+  "outlook_nextcloud_picker_column_size": {
+    "message": "大小"
+  },
+  "outlook_nextcloud_picker_column_modified": {
+    "message": "修改时间"
+  },
+  "outlook_nextcloud_picker_no_selection": {
+    "message": "未选择文件"
+  },
+  "outlook_nextcloud_picker_no_preview": {
+    "message": "无法预览"
+  },
+  "outlook_nextcloud_picker_close_button": {
+    "message": "关闭"
+  },
+  "outlook_nextcloud_picker_select_files_button": {
+    "message": "选择文件"
+  },
+  "outlook_nextcloud_picker_select_folder_button": {
+    "message": "选择此文件夹"
+  },
+  "outlook_nextcloud_picker_loading": {
+    "message": "正在加载文件夹..."
+  },
+  "outlook_nextcloud_picker_reading_folder": {
+    "message": "正在读取文件夹内容..."
+  },
+  "outlook_nextcloud_picker_storage_used": {
+    "message": "存储空间：已使用 $1"
+  },
+  "outlook_nextcloud_picker_storage_of": {
+    "message": "存储空间：已使用 $1，共 $2"
+  },
+  "outlook_sharing_add_nextcloud_files": {
+    "message": "从“我的 Nextcloud”选择文件..."
+  },
+  "outlook_sharing_add_nextcloud_folder": {
+    "message": "从“我的 Nextcloud”选择文件夹..."
   }
 }

@@ -121,6 +121,7 @@
     <Compile Include="Models\FileLinkUploadPhase.cs" />
     <Compile Include="Models\FileLinkUploadPhaseProgress.cs" />
     <Compile Include="Models\NextcloudCapabilitiesSnapshot.cs" />
+    <Compile Include="Models\NextcloudStorageEntry.cs" />
     <Compile Include="Models\BackendPolicyStatus.cs" />
     <Compile Include="Models\AttachmentLinkTargetPolicy.cs" />
     <Compile Include="Models\EmailSignaturePolicy.cs" />
@@ -167,6 +168,8 @@
     <Compile Include="Services\TalkService.cs" />
     <Compile Include="Services\FileLinkDuplicateInfo.cs" />
     <Compile Include="Services\FileLinkDavClient.cs" />
+    <Compile Include="Services\FileLinkDavClient.Browsing.cs" />
+    <Compile Include="Services\FileLinkDavClient.Copy.cs" />
     <Compile Include="Services\FileLinkDavClient.Probes.cs" />
     <Compile Include="Services\FileLinkDavClient.Requests.cs" />
     <Compile Include="Services\FileLinkUploadContext.cs" />
@@ -203,6 +206,7 @@
     <Compile Include="UI\FileLinkWizardForm.Policy.cs" />
     <Compile Include="UI\FileLinkWizardForm.Upload.cs" />
     <Compile Include="UI\FileLinkWizardForm.UploadProgress.cs" />
+    <Compile Include="UI\NextcloudFilePickerForm.cs" />
     <Compile Include="UI\SharePasswordDeliveryModeComboHelper.cs" />
     <Compile Include="Utilities\DiagnosticsLogger.cs" />
     <Compile Include="Utilities\FooterButtonLayoutHelper.cs" />
@@ -212,8 +216,10 @@
     <Compile Include="Utilities\HttpAuthUtilities.cs" />
     <Compile Include="Utilities\BrandingAssets.cs" />
     <Compile Include="Utilities\FileLinkPath.cs" />
+    <Compile Include="Utilities\FileLinkIconProvider.cs" />
     <Compile Include="Utilities\FileLinkUploadPolicy.cs" />
     <Compile Include="Utilities\NextcloudVersionHelper.cs" />
+    <Compile Include="Utilities\NextcloudPath.cs" />
     <Compile Include="Utilities\NextcloudUriValidator.cs" />
     <Compile Include="Utilities\Strings.cs" />
     <Compile Include="Utilities\SizeFormatting.cs" />

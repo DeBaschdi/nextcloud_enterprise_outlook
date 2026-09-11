@@ -946,6 +946,8 @@ namespace NcTalkOutlookAddIn.Utilities
         internal static string FileLinkWizardBasePathPrefix { get { return Get("outlook_sharing_base_path_prefix", "Base directory: "); } }
         internal static string FileLinkWizardAddFilesButton { get { return Get("sharing_button_add_files", "Add files..."); } }
         internal static string FileLinkWizardAddFolderButton { get { return Get("sharing_button_add_folder", "Add folder..."); } }
+        internal static string FileLinkWizardAddNextcloudFilesButton { get { return Get("outlook_sharing_add_nextcloud_files", "My Nextcloud files..."); } }
+        internal static string FileLinkWizardAddNextcloudFolderButton { get { return Get("outlook_sharing_add_nextcloud_folder", "My Nextcloud folder..."); } }
         internal static string FileLinkWizardRemoveButton { get { return Get("sharing_button_remove", "Remove"); } }
         internal static string FileLinkWizardColumnPath { get { return Get("sharing_files_table_path", "Path"); } }
         internal static string FileLinkWizardColumnType { get { return Get("sharing_files_table_type", "Type"); } }
@@ -975,6 +977,24 @@ namespace NcTalkOutlookAddIn.Utilities
         internal static string FileLinkWizardUploadCancelledMessage { get { return Get("outlook_sharing_upload_cancelled", "Upload was cancelled."); } }
         internal static string FileLinkWizardUploadFailed { get { return Get("outlook_sharing_upload_failed", "Upload failed."); } }
         internal static string FileLinkWizardUploadFailedFormat { get { return Get("outlook_sharing_upload_failed_format", "Upload failed: {0}"); } }
+        internal static string NextcloudPickerLoadFailed { get { return Get("outlook_nextcloud_picker_load_failed", "The Nextcloud folder could not be loaded."); } }
+        internal static string FileLinkSourceMyNextcloud { get { return Get("outlook_sharing_source_my_nextcloud", "My Nextcloud"); } }
+        internal static string NextcloudPickerFilesTitle { get { return Get("outlook_nextcloud_picker_files_title", "Select files"); } }
+        internal static string NextcloudPickerFolderTitle { get { return Get("outlook_nextcloud_picker_folder_title", "Select folder"); } }
+        internal static string NextcloudPickerFilterPlaceholder { get { return Get("outlook_nextcloud_picker_filter_placeholder", "Filter by name..."); } }
+        internal static string NextcloudPickerAccountFormat { get { return Get("outlook_nextcloud_picker_account_format", "Nextcloud: {0}"); } }
+        internal static string NextcloudPickerColumnName { get { return Get("outlook_nextcloud_picker_column_name", "Name"); } }
+        internal static string NextcloudPickerColumnSize { get { return Get("outlook_nextcloud_picker_column_size", "Size"); } }
+        internal static string NextcloudPickerColumnModified { get { return Get("outlook_nextcloud_picker_column_modified", "Modified"); } }
+        internal static string NextcloudPickerNoSelection { get { return Get("outlook_nextcloud_picker_no_selection", "No file selected"); } }
+        internal static string NextcloudPickerNoPreview { get { return Get("outlook_nextcloud_picker_no_preview", "No preview available"); } }
+        internal static string NextcloudPickerCloseButton { get { return Get("outlook_nextcloud_picker_close_button", "Close"); } }
+        internal static string NextcloudPickerSelectFilesButton { get { return Get("outlook_nextcloud_picker_select_files_button", "Select files"); } }
+        internal static string NextcloudPickerSelectFolderButton { get { return Get("outlook_nextcloud_picker_select_folder_button", "Select this folder"); } }
+        internal static string NextcloudPickerLoading { get { return Get("outlook_nextcloud_picker_loading", "Loading folder..."); } }
+        internal static string NextcloudPickerReadingFolder { get { return Get("outlook_nextcloud_picker_reading_folder", "Reading folder contents..."); } }
+        internal static string NextcloudPickerStorageUsedFormat { get { return Get("outlook_nextcloud_picker_storage_used", "Storage: {0} used"); } }
+        internal static string NextcloudPickerStorageOfFormat { get { return Get("outlook_nextcloud_picker_storage_of", "Storage: {0} of {1} used"); } }
         internal static string FileLinkUploadSourceChanged { get { return Get("outlook_sharing_source_changed", "A selected file changed after scanning. Start the upload again."); } }
         internal static string FileLinkUploadLinkedItemUnsupported { get { return Get("outlook_sharing_linked_item_unsupported", "The selection contains a symbolic link or junction. Remove the linked item and start the upload again."); } }
         internal static string FileLinkUploadInsufficientStorage { get { return Get("outlook_sharing_insufficient_storage", "Nextcloud does not have enough free storage for this upload."); } }

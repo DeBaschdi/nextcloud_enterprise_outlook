@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using NcTalkOutlookAddIn.Models;
@@ -86,6 +87,89 @@ namespace NcTalkOutlookAddIn.Services
                     + ").");
                 return exists;
             }
+        }
+
+        internal string NextcloudAccountName
+        {
+            get
+            {
+                string normalizedBaseUrl =
+                    _configuration.GetNormalizedBaseUrl();
+                Uri uri;
+                return Uri.TryCreate(
+                           normalizedBaseUrl,
+                           UriKind.Absolute,
+                           out uri)
+                    ? uri.Host
+                    : _configuration.Username;
+            }
+        }
+
+        internal NextcloudStorageListing ListNextcloudDirectory(
+            string relativePath,
+            CancellationToken cancellationToken)
+        {
+            string normalizedBaseUrl =
+                _configuration.GetNormalizedBaseUrl();
+            string userId =
+                NextcloudUserIdentityService.ResolveCurrentUserId(
+                    _configuration);
+            return _davClient.ListDirectory(
+                normalizedBaseUrl,
+                userId,
+                relativePath,
+                cancellationToken);
+        }
+
+        internal IList<NextcloudStorageEntry> SnapshotNextcloudFolder(
+            NextcloudStorageEntry root,
+            IProgress<int> progress,
+            CancellationToken cancellationToken)
+        {
+            if (root == null || !root.IsDirectory)
+            {
+                throw new ArgumentException(
+                    "A Nextcloud folder is required.",
+                    "root");
+            }
+
+            var snapshot = new List<NextcloudStorageEntry>();
+            var pending = new Queue<NextcloudStorageEntry>();
+            pending.Enqueue(root);
+            int completedFolders = 0;
+            while (pending.Count > 0)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                NextcloudStorageEntry folder = pending.Dequeue();
+                NextcloudStorageListing listing =
+                    ListNextcloudDirectory(
+                        folder.RelativePath,
+                        cancellationToken);
+                foreach (NextcloudStorageEntry entry
+                    in listing.Entries)
+                {
+                    snapshot.Add(entry);
+                    if (entry.IsDirectory)
+                    {
+                        pending.Enqueue(entry);
+                    }
+                }
+                completedFolders++;
+                if (progress != null)
+                {
+                    progress.Report(completedFolders);
+                }
+            }
+
+            return snapshot
+                .OrderBy(
+                    entry => NextcloudPath.GetDepth(
+                        entry.RelativePath))
+                .ThenBy(entry => entry.IsDirectory ? 0 : 1)
+                .ThenBy(
+                    entry => entry.RelativePath,
+                    StringComparer.Ordinal)
+                .ToList();
         }
 
         internal FileLinkUploadContext PrepareUpload(

@@ -1015,5 +1015,65 @@
   },
   "options_update_changelog_fixed": {
     "message": "Naprawiono"
+  },
+  "outlook_nextcloud_picker_load_failed": {
+    "message": "Nie udało się wczytać folderu Nextcloud."
+  },
+  "outlook_sharing_source_my_nextcloud": {
+    "message": "Mój Nextcloud"
+  },
+  "outlook_nextcloud_picker_files_title": {
+    "message": "Wybierz pliki"
+  },
+  "outlook_nextcloud_picker_folder_title": {
+    "message": "Wybierz folder"
+  },
+  "outlook_nextcloud_picker_filter_placeholder": {
+    "message": "Filtruj według nazwy..."
+  },
+  "outlook_nextcloud_picker_account_format": {
+    "message": "Nextcloud: $1"
+  },
+  "outlook_nextcloud_picker_column_name": {
+    "message": "Nazwa"
+  },
+  "outlook_nextcloud_picker_column_size": {
+    "message": "Rozmiar"
+  },
+  "outlook_nextcloud_picker_column_modified": {
+    "message": "Zmieniono"
+  },
+  "outlook_nextcloud_picker_no_selection": {
+    "message": "Nie wybrano pliku"
+  },
+  "outlook_nextcloud_picker_no_preview": {
+    "message": "Podgląd niedostępny"
+  },
+  "outlook_nextcloud_picker_close_button": {
+    "message": "Zamknij"
+  },
+  "outlook_nextcloud_picker_select_files_button": {
+    "message": "Wybierz pliki"
+  },
+  "outlook_nextcloud_picker_select_folder_button": {
+    "message": "Wybierz ten folder"
+  },
+  "outlook_nextcloud_picker_loading": {
+    "message": "Wczytywanie folderu..."
+  },
+  "outlook_nextcloud_picker_reading_folder": {
+    "message": "Odczytywanie zawartości folderu..."
+  },
+  "outlook_nextcloud_picker_storage_used": {
+    "message": "Miejsce: wykorzystano $1"
+  },
+  "outlook_nextcloud_picker_storage_of": {
+    "message": "Miejsce: wykorzystano $1 z $2"
+  },
+  "outlook_sharing_add_nextcloud_files": {
+    "message": "Pliki z Mojego Nextcloud..."
+  },
+  "outlook_sharing_add_nextcloud_folder": {
+    "message": "Folder z Mojego Nextcloud..."
   }
 }

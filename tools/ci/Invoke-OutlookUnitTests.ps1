@@ -655,6 +655,62 @@ internal static class OutlookUtilityTests
                     "shared-direct",
                     StringComparison.OrdinalIgnoreCase));
 
+            var nextcloudRoot = new NextcloudStorageEntry(
+                "Team: Archive",
+                "Team: Archive",
+                true,
+                0,
+                null);
+            var nextcloudSelection =
+                FileLinkSelection.FromNextcloudFolder(
+                    nextcloudRoot,
+                    new[]
+                    {
+                        new NextcloudStorageEntry(
+                            "Team: Archive/Empty",
+                            "Empty",
+                            true,
+                            0,
+                            null),
+                        new NextcloudStorageEntry(
+                            "Team: Archive/report.pdf",
+                            "report.pdf",
+                            false,
+                            42,
+                            new DateTime(
+                                2026,
+                                9,
+                                11,
+                                0,
+                                0,
+                                0,
+                                DateTimeKind.Utc))
+                    });
+            var nextcloudPlan = FileLinkUploadPlanBuilder.Build(
+                new List<FileLinkSelection> { nextcloudSelection },
+                true,
+                1,
+                null,
+                CancellationToken.None);
+            Equal(
+                "FileLink planner keeps remote files on the server",
+                FileLinkUploadTransport.ServerCopy,
+                nextcloudPlan.Files[0].Transport);
+            Equal(
+                "FileLink planner preserves the Nextcloud source path",
+                "Team: Archive/report.pdf",
+                nextcloudPlan.Files[0].NextcloudSourcePath);
+            Equal(
+                "FileLink planner tracks remote file bytes",
+                42L,
+                nextcloudPlan.TotalBytes);
+            Check(
+                "FileLink planner keeps an empty Nextcloud folder",
+                nextcloudPlan.DirectoriesToCreate.Any(
+                    path => path.EndsWith(
+                        "/Empty",
+                        StringComparison.OrdinalIgnoreCase)));
+
         }
         finally
         {
@@ -1044,6 +1100,7 @@ internal static class OutlookUtilityTests
     $sources = @(
         $testSource,
         (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Models\FileLinkSelection.cs"),
+        (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Models\NextcloudStorageEntry.cs"),
         (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Models\ComposeLifecycleOrigin.cs"),
         (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Models\ComposeShareCleanupRecord.cs"),
         (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Services\FileLinkDuplicateInfo.cs"),
@@ -1056,6 +1113,7 @@ internal static class OutlookUtilityTests
         (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Utilities\PasswordGenerator.cs"),
         (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Utilities\SizeFormatting.cs"),
         (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Utilities\NextcloudVersionHelper.cs"),
+        (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Utilities\NextcloudPath.cs"),
         (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Utilities\NextcloudUriValidator.cs"),
         (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Utilities\FileLinkPath.cs"),
         (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Utilities\FileLinkUploadPolicy.cs"),

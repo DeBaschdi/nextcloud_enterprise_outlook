@@ -1065,6 +1065,7 @@ internal static class FileLinkTransferTests
         (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Services\FileLinkDirectUploader.cs"),
         (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Services\FileLinkChunkUploader.cs"),
         (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Utilities\FileLinkPath.cs"),
+        (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Utilities\NextcloudPath.cs"),
         (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Utilities\FileLinkUploadPolicy.cs"),
         (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Utilities\NcJson.cs")
     )

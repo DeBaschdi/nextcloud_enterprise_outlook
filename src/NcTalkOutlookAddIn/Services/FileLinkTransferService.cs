@@ -17,6 +17,7 @@ namespace NcTalkOutlookAddIn.Services
     // Coordinates bulk, direct, and chunked upload workers.
     internal sealed class FileLinkTransferService
     {
+        private readonly FileLinkDavClient _davClient;
         private readonly FileLinkBulkUploader _bulkUploader;
         private readonly FileLinkDirectUploader _directUploader;
         private readonly FileLinkChunkUploader _chunkUploader;
@@ -28,6 +29,7 @@ namespace NcTalkOutlookAddIn.Services
                 throw new ArgumentNullException("davClient");
             }
 
+            _davClient = davClient;
             _bulkUploader = new FileLinkBulkUploader(davClient);
             _directUploader = new FileLinkDirectUploader(davClient);
             _chunkUploader = new FileLinkChunkUploader(davClient);
@@ -88,6 +90,11 @@ namespace NcTalkOutlookAddIn.Services
                         plan.DirectAndChunkedFiles,
                         coordinator,
                         cancellationToken);
+                    CopyNextcloudFiles(
+                        context,
+                        plan.ServerCopyFiles,
+                        coordinator,
+                        cancellationToken);
                     coordinator.Complete();
                 }
                 catch
@@ -116,6 +123,60 @@ namespace NcTalkOutlookAddIn.Services
                 + ", bytesPerSecond="
                 + bytesPerSecond.ToString(CultureInfo.InvariantCulture)
                 + ").");
+        }
+
+        private void CopyNextcloudFiles(
+            FileLinkUploadContext context,
+            IEnumerable<FileLinkPlannedFile> files,
+            FileLinkUploadProgressCoordinator coordinator,
+            CancellationToken cancellationToken)
+        {
+            List<FileLinkPlannedFile> pending = files.ToList();
+            if (pending.Count == 0)
+            {
+                return;
+            }
+
+            var options = new ParallelOptions
+            {
+                CancellationToken = cancellationToken,
+                MaxDegreeOfParallelism =
+                    FileLinkUploadPolicy.MaxParallelRequests
+            };
+            try
+            {
+                Parallel.ForEach(
+                    pending,
+                    options,
+                    file =>
+                    {
+                        try
+                        {
+                            string destinationPath = FileLinkPath.Combine(
+                                context.RelativeFolderPath,
+                                file.RemotePath);
+                            _davClient.CopyFile(
+                                context.NormalizedBaseUrl,
+                                context.UserId,
+                                file.NextcloudSourcePath,
+                                destinationPath,
+                                file.Length,
+                                cancellationToken);
+                            coordinator.CompleteFile(file);
+                        }
+                        catch
+                        {
+                            coordinator.FailFile(file);
+                            throw;
+                        }
+                    });
+            }
+            catch (AggregateException ex)
+            {
+                ParallelExecution.RethrowFirstFailure(
+                    ex,
+                    cancellationToken);
+            }
         }
 
         private void UploadBulkBatches(

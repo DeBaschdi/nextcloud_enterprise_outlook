@@ -1015,5 +1015,65 @@
   },
   "options_update_changelog_fixed": {
     "message": "Opgelost"
+  },
+  "outlook_nextcloud_picker_load_failed": {
+    "message": "De Nextcloud-map kon niet worden geladen."
+  },
+  "outlook_sharing_source_my_nextcloud": {
+    "message": "Mijn Nextcloud"
+  },
+  "outlook_nextcloud_picker_files_title": {
+    "message": "Bestanden selecteren"
+  },
+  "outlook_nextcloud_picker_folder_title": {
+    "message": "Map selecteren"
+  },
+  "outlook_nextcloud_picker_filter_placeholder": {
+    "message": "Filteren op naam..."
+  },
+  "outlook_nextcloud_picker_account_format": {
+    "message": "Nextcloud: $1"
+  },
+  "outlook_nextcloud_picker_column_name": {
+    "message": "Naam"
+  },
+  "outlook_nextcloud_picker_column_size": {
+    "message": "Grootte"
+  },
+  "outlook_nextcloud_picker_column_modified": {
+    "message": "Gewijzigd"
+  },
+  "outlook_nextcloud_picker_no_selection": {
+    "message": "Geen bestand geselecteerd"
+  },
+  "outlook_nextcloud_picker_no_preview": {
+    "message": "Geen voorbeeld beschikbaar"
+  },
+  "outlook_nextcloud_picker_close_button": {
+    "message": "Sluiten"
+  },
+  "outlook_nextcloud_picker_select_files_button": {
+    "message": "Bestanden selecteren"
+  },
+  "outlook_nextcloud_picker_select_folder_button": {
+    "message": "Deze map selecteren"
+  },
+  "outlook_nextcloud_picker_loading": {
+    "message": "Map laden..."
+  },
+  "outlook_nextcloud_picker_reading_folder": {
+    "message": "Mapinhoud lezen..."
+  },
+  "outlook_nextcloud_picker_storage_used": {
+    "message": "Opslag: $1 gebruikt"
+  },
+  "outlook_nextcloud_picker_storage_of": {
+    "message": "Opslag: $1 van $2 gebruikt"
+  },
+  "outlook_sharing_add_nextcloud_files": {
+    "message": "Bestanden uit Mijn Nextcloud..."
+  },
+  "outlook_sharing_add_nextcloud_folder": {
+    "message": "Map uit Mijn Nextcloud..."
   }
 }

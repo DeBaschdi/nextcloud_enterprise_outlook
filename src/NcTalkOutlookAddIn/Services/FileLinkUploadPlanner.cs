@@ -30,13 +30,21 @@ namespace NcTalkOutlookAddIn.Services
 
             foreach (FileLinkPlannedFile file in files)
             {
+                if (file.Transport == FileLinkUploadTransport.ServerCopy)
+                {
+                    continue;
+                }
                 file.Transport = FileLinkUploadPolicy.ShouldUseChunkedUpload(file.Length)
                     ? FileLinkUploadTransport.Chunked
                     : FileLinkUploadTransport.Direct;
             }
 
             List<FileLinkPlannedFile> bulkCandidates = files
-                .Where(file => FileLinkUploadPolicy.IsBulkCandidate(file.Length))
+                .Where(
+                    file => file.Transport
+                            != FileLinkUploadTransport.ServerCopy
+                            && FileLinkUploadPolicy.IsBulkCandidate(
+                                file.Length))
                 .ToList();
             List<FileLinkBulkUploadBatch> bulkBatches = BuildBulkBatches(bulkCandidates);
             List<string> directDirectories = BuildRequiredDirectories(
@@ -45,7 +53,9 @@ namespace NcTalkOutlookAddIn.Services
                 files.Where(
                     file =>
                         file.Transport
-                        == FileLinkUploadTransport.Chunked),
+                        == FileLinkUploadTransport.Chunked
+                        || file.Transport
+                        == FileLinkUploadTransport.ServerCopy),
                 files.Where(
                     file =>
                         file.Transport
@@ -57,6 +67,8 @@ namespace NcTalkOutlookAddIn.Services
                     file =>
                         file.Transport
                         == FileLinkUploadTransport.Chunked
+                        || file.Transport
+                        == FileLinkUploadTransport.ServerCopy
                         || FileLinkUploadPolicy.IsBulkCandidate(
                             file.Length)),
                 files.Where(
@@ -68,6 +80,12 @@ namespace NcTalkOutlookAddIn.Services
             long totalFileRequestCount = 0;
             foreach (FileLinkPlannedFile file in files)
             {
+                if (file.Transport == FileLinkUploadTransport.ServerCopy)
+                {
+                    totalFileRequestCount = checked(
+                        totalFileRequestCount + 1);
+                    continue;
+                }
                 totalFileRequestCount = checked(
                     totalFileRequestCount
                     + FileLinkUploadPolicy.GetTransferRequestCount(

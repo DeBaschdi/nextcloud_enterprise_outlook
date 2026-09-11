@@ -159,6 +159,26 @@ namespace NcTalkOutlookAddIn.Services
                 encoded);
         }
 
+        internal static string BuildNextcloudSourceUrl(
+            string baseUrl,
+            string userId,
+            string relativePath)
+        {
+            string normalizedPath = NextcloudPath.Normalize(relativePath);
+            string[] segments = normalizedPath.Split(
+                new[] { '/' },
+                StringSplitOptions.RemoveEmptyEntries);
+            string encoded = string.Join(
+                "/",
+                segments.Select(Uri.EscapeDataString));
+            return string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}/remote.php/dav/files/{1}/{2}",
+                baseUrl.TrimEnd('/'),
+                Uri.EscapeDataString(userId ?? string.Empty),
+                encoded);
+        }
+
         internal static string BuildChunkUploadFolderUrl(
             string baseUrl,
             string userId)

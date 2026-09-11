@@ -1015,5 +1015,65 @@
   },
   "options_update_changelog_fixed": {
     "message": "修正"
+  },
+  "outlook_nextcloud_picker_load_failed": {
+    "message": "Nextcloud フォルダーを読み込めませんでした。"
+  },
+  "outlook_sharing_source_my_nextcloud": {
+    "message": "マイ Nextcloud"
+  },
+  "outlook_nextcloud_picker_files_title": {
+    "message": "ファイルを選択"
+  },
+  "outlook_nextcloud_picker_folder_title": {
+    "message": "フォルダーを選択"
+  },
+  "outlook_nextcloud_picker_filter_placeholder": {
+    "message": "名前で絞り込む..."
+  },
+  "outlook_nextcloud_picker_account_format": {
+    "message": "Nextcloud: $1"
+  },
+  "outlook_nextcloud_picker_column_name": {
+    "message": "名前"
+  },
+  "outlook_nextcloud_picker_column_size": {
+    "message": "サイズ"
+  },
+  "outlook_nextcloud_picker_column_modified": {
+    "message": "更新日"
+  },
+  "outlook_nextcloud_picker_no_selection": {
+    "message": "ファイルが選択されていません"
+  },
+  "outlook_nextcloud_picker_no_preview": {
+    "message": "プレビューを表示できません"
+  },
+  "outlook_nextcloud_picker_close_button": {
+    "message": "閉じる"
+  },
+  "outlook_nextcloud_picker_select_files_button": {
+    "message": "ファイルを選択"
+  },
+  "outlook_nextcloud_picker_select_folder_button": {
+    "message": "このフォルダーを選択"
+  },
+  "outlook_nextcloud_picker_loading": {
+    "message": "フォルダーを読み込んでいます..."
+  },
+  "outlook_nextcloud_picker_reading_folder": {
+    "message": "フォルダーの内容を読み込んでいます..."
+  },
+  "outlook_nextcloud_picker_storage_used": {
+    "message": "ストレージ: $1 使用中"
+  },
+  "outlook_nextcloud_picker_storage_of": {
+    "message": "ストレージ: $2 中 $1 使用中"
+  },
+  "outlook_sharing_add_nextcloud_files": {
+    "message": "マイ Nextcloud のファイル..."
+  },
+  "outlook_sharing_add_nextcloud_folder": {
+    "message": "マイ Nextcloud のフォルダー..."
   }
 }

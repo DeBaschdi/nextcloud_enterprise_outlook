@@ -106,6 +106,13 @@ namespace NcTalkOutlookAddIn.Services
                 _selectionBytes[selection] = 0;
                 _selectionFileCounts[selection] = 0;
 
+                if (selection.Source
+                    == FileLinkSelectionSource.Nextcloud)
+                {
+                    AddNextcloudSelection(selection);
+                    continue;
+                }
+
                 if (selection.SelectionType
                     == FileLinkSelectionType.File)
                 {
@@ -123,6 +130,182 @@ namespace NcTalkOutlookAddIn.Services
                 _selectionBytes,
                 _selectionFileCounts,
                 _totalBytes);
+        }
+
+        private void AddNextcloudSelection(
+            FileLinkSelection selection)
+        {
+            if (selection.NextcloudEntries == null
+                || selection.NextcloudEntries.Count == 0)
+            {
+                throw CreateSourceChangedException();
+            }
+
+            if (selection.SelectionType == FileLinkSelectionType.File)
+            {
+                NextcloudStorageEntry entry = selection.NextcloudEntries
+                    .FirstOrDefault(
+                        item => item != null
+                                && !item.IsDirectory
+                                && string.Equals(
+                                    item.RelativePath,
+                                    selection.NextcloudPath,
+                                    StringComparison.Ordinal));
+                if (entry == null)
+                {
+                    throw CreateSourceChangedException();
+                }
+
+                string fileName = FileLinkPath.SanitizeComponent(
+                    entry.DisplayName);
+                if (string.IsNullOrWhiteSpace(fileName))
+                {
+                    throw CreateSourceChangedException();
+                }
+                AddPlannedNextcloudFile(
+                    selection,
+                    entry,
+                    ReserveUniqueName(
+                        string.Empty,
+                        fileName,
+                        selection,
+                        false));
+                return;
+            }
+
+            AddNextcloudDirectory(selection);
+        }
+
+        private void AddNextcloudDirectory(
+            FileLinkSelection selection)
+        {
+            NextcloudStorageEntry root = selection.NextcloudEntries
+                .FirstOrDefault(
+                    item => item != null
+                            && item.IsDirectory
+                            && string.Equals(
+                                item.RelativePath,
+                                selection.NextcloudPath,
+                                StringComparison.Ordinal));
+            if (root == null)
+            {
+                throw CreateSourceChangedException();
+            }
+
+            string rootName = FileLinkPath.SanitizeComponent(
+                selection.DisplayName);
+            if (string.IsNullOrWhiteSpace(rootName))
+            {
+                rootName = "Nextcloud";
+            }
+            string remoteRoot = ReserveUniqueName(
+                string.Empty,
+                rootName,
+                selection,
+                true);
+            _directories.Add(remoteRoot);
+
+            var directoryTargets = new Dictionary<string, string>(
+                StringComparer.Ordinal);
+            directoryTargets[root.RelativePath] = remoteRoot;
+            IEnumerable<NextcloudStorageEntry> descendants =
+                selection.NextcloudEntries
+                    .Where(
+                        item => item != null
+                                && !string.Equals(
+                                    item.RelativePath,
+                                    root.RelativePath,
+                                    StringComparison.Ordinal))
+                    .OrderBy(
+                        item => NextcloudPath.GetDepth(
+                            item.RelativePath))
+                    .ThenBy(item => item.IsDirectory ? 0 : 1)
+                    .ThenBy(
+                        item => item.RelativePath,
+                        StringComparer.Ordinal);
+            foreach (NextcloudStorageEntry entry in descendants)
+            {
+                _cancellationToken.ThrowIfCancellationRequested();
+                if (!IsDescendantPath(
+                    root.RelativePath,
+                    entry.RelativePath))
+                {
+                    throw CreateSourceChangedException();
+                }
+
+                string sourceParent = NextcloudPath.GetParent(
+                    entry.RelativePath);
+                string targetParent;
+                if (!directoryTargets.TryGetValue(
+                    sourceParent,
+                    out targetParent))
+                {
+                    throw CreateSourceChangedException();
+                }
+                string name = FileLinkPath.SanitizeComponent(
+                    entry.DisplayName);
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    name = entry.IsDirectory ? "Folder" : "File";
+                }
+                string uniqueName = ReserveUniqueName(
+                    targetParent,
+                    name,
+                    selection,
+                    entry.IsDirectory);
+                string targetPath = FileLinkPath.Combine(
+                    targetParent,
+                    uniqueName);
+                if (entry.IsDirectory)
+                {
+                    directoryTargets[entry.RelativePath] = targetPath;
+                    _directories.Add(targetPath);
+                }
+                else
+                {
+                    AddPlannedNextcloudFile(
+                        selection,
+                        entry,
+                        targetPath);
+                }
+            }
+        }
+
+        private void AddPlannedNextcloudFile(
+            FileLinkSelection selection,
+            NextcloudStorageEntry entry,
+            string remotePath)
+        {
+            long length = Math.Max(0, entry.Length);
+            _totalBytes = checked(_totalBytes + length);
+            _selectionBytes[selection] = checked(
+                _selectionBytes[selection] + length);
+            _selectionFileCounts[selection] = checked(
+                _selectionFileCounts[selection] + 1);
+            _files.Add(new FileLinkPlannedFile(
+                selection,
+                entry.RelativePath,
+                remotePath,
+                length,
+                entry.LastModifiedUtc ?? DateTime.MinValue,
+                FileLinkUploadTransport.ServerCopy));
+        }
+
+        private static bool IsDescendantPath(
+            string parent,
+            string candidate)
+        {
+            string normalizedParent = (parent ?? string.Empty)
+                .Trim('/');
+            string normalizedCandidate = (candidate ?? string.Empty)
+                .Trim('/');
+            if (normalizedParent.Length == 0)
+            {
+                return normalizedCandidate.Length > 0;
+            }
+            return normalizedCandidate.StartsWith(
+                normalizedParent + "/",
+                StringComparison.Ordinal);
         }
 
         private void AddSingleFile(FileLinkSelection selection)

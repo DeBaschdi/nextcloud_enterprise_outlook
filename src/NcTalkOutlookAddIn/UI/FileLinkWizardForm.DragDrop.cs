@@ -88,23 +88,25 @@ namespace NcTalkOutlookAddIn.UI
 
         private bool TryAddSelection(FileLinkSelection selection, HashSet<string> existingPaths)
         {
-            if (selection == null || string.IsNullOrWhiteSpace(selection.LocalPath))
+            if (selection == null
+                || (selection.Source == FileLinkSelectionSource.Local
+                    && string.IsNullOrWhiteSpace(selection.LocalPath)))
             {
                 return false;
             }
             if (!_attachmentMode && existingPaths != null)
             {
-                if (existingPaths.Contains(selection.LocalPath))
+                if (existingPaths.Contains(selection.IdentityPath))
                 {
                     return false;
                 }
 
-                existingPaths.Add(selection.LocalPath);
+                existingPaths.Add(selection.IdentityPath);
             }
 
             _items.Add(selection);
 
-            var listViewItem = new ListViewItem(selection.LocalPath)
+            var listViewItem = new ListViewItem(selection.DisplayPath)
             {
                 Tag = selection
             };
@@ -120,7 +122,16 @@ namespace NcTalkOutlookAddIn.UI
 
         private static bool SelectionPathExists(FileLinkSelection selection)
         {
-            if (selection == null || string.IsNullOrWhiteSpace(selection.LocalPath))
+            if (selection == null)
+            {
+                return false;
+            }
+            if (selection.Source == FileLinkSelectionSource.Nextcloud)
+            {
+                return selection.NextcloudEntries != null
+                       && selection.NextcloudEntries.Count > 0;
+            }
+            if (string.IsNullOrWhiteSpace(selection.LocalPath))
             {
                 return false;
             }

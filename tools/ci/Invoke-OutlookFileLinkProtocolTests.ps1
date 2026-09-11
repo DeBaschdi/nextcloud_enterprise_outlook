@@ -87,6 +87,16 @@ namespace NcTalkOutlookAddIn.Utilities
         {
             get { return "upload failed"; }
         }
+
+        internal static string FileLinkUploadSourceChanged
+        {
+            get { return "source changed"; }
+        }
+
+        internal static string NextcloudPickerLoadFailed
+        {
+            get { return "folder load failed"; }
+        }
     }
 
     internal static class ParallelExecution
@@ -240,6 +250,8 @@ internal static class FileLinkProtocolTests
     {
         TestAutoMkcolHeader();
         TestDavPathNormalization();
+        TestNextcloudDirectoryListing();
+        TestNextcloudServerCopy();
         TestMissingResourcePreflight();
         TestExistingResourcePreflight();
         TestUnauthorizedPreflight();
@@ -286,6 +298,100 @@ internal static class FileLinkProtocolTests
                 "https://cloud.example.test",
                 "user",
                 "safe/../file.txt"));
+    }
+
+    private static void TestNextcloudDirectoryListing()
+    {
+        string xml =
+            "<?xml version=\"1.0\"?>"
+            + "<d:multistatus xmlns:d=\"DAV:\">"
+            + "<d:response><d:href>"
+            + "/nextcloud/remote.php/dav/files/user/Projects/"
+            + "</d:href><d:propstat><d:prop>"
+            + "<d:resourcetype><d:collection/></d:resourcetype>"
+            + "<d:quota-used-bytes>100</d:quota-used-bytes>"
+            + "<d:quota-available-bytes>900</d:quota-available-bytes>"
+            + "</d:prop></d:propstat></d:response>"
+            + "<d:response><d:href>"
+            + "/nextcloud/remote.php/dav/files/user/Projects/Design%3A2026/"
+            + "</d:href><d:propstat><d:prop>"
+            + "<d:displayname>Design:2026</d:displayname>"
+            + "<d:resourcetype><d:collection/></d:resourcetype>"
+            + "</d:prop></d:propstat></d:response>"
+            + "<d:response><d:href>"
+            + "/nextcloud/remote.php/dav/files/user/Projects/report%20one.pdf"
+            + "</d:href><d:propstat><d:prop>"
+            + "<d:displayname>report one.pdf</d:displayname>"
+            + "<d:resourcetype/>"
+            + "<d:getcontentlength>42</d:getcontentlength>"
+            + "<d:getlastmodified>Fri, 11 Sep 2026 03:00:00 GMT</d:getlastmodified>"
+            + "</d:prop></d:propstat></d:response>"
+            + "</d:multistatus>";
+
+        NextcloudStorageListing listing =
+            FileLinkDavClient.ParseDirectoryListing(
+                "https://cloud.example.test/nextcloud",
+                "user",
+                "Projects",
+                xml);
+        Equal("Nextcloud listing excludes its own folder", 2, listing.Entries.Count);
+        Equal(
+            "Nextcloud listing keeps server file names",
+            "Projects/Design:2026",
+            listing.Entries[0].RelativePath);
+        Check(
+            "Nextcloud listing keeps folders before files",
+            listing.Entries[0].IsDirectory
+            && !listing.Entries[1].IsDirectory);
+        Equal("Nextcloud listing reads file sizes", 42L, listing.Entries[1].Length);
+        Equal("Nextcloud listing reads occupied storage", 100L, listing.UsedBytes.Value);
+        Equal("Nextcloud listing reads available storage", 900L, listing.AvailableBytes.Value);
+    }
+
+    private static void TestNextcloudServerCopy()
+    {
+        var requests = new List<NcHttpRequestOptions>();
+        var client = new FileLinkDavClient(options =>
+        {
+            requests.Add(options);
+            if (options.Method == "PROPFIND")
+            {
+                return new NcHttpResponse
+                {
+                    HasHttpResponse = true,
+                    StatusCode = (HttpStatusCode)207,
+                    ResponseText =
+                        "<?xml version=\"1.0\"?>"
+                        + "<d:multistatus xmlns:d=\"DAV:\">"
+                        + "<d:response><d:propstat><d:prop>"
+                        + "<d:resourcetype/>"
+                        + "<d:getcontentlength>42</d:getcontentlength>"
+                        + "</d:prop></d:propstat></d:response>"
+                        + "</d:multistatus>"
+                };
+            }
+            return Http(HttpStatusCode.Created);
+        });
+
+        client.CopyFile(
+            "https://cloud.example.test",
+            "user",
+            "Projects/Design:2026/report.pdf",
+            "NC Connector/share/report.pdf",
+            42,
+            CancellationToken.None);
+
+        Equal("Nextcloud copy probes and copies once", 2, requests.Count);
+        Equal("Nextcloud copy uses DAV COPY", "COPY", requests[1].Method);
+        Equal(
+            "Nextcloud copy preserves and encodes the source path",
+            "https://cloud.example.test/remote.php/dav/files/user/Projects/Design%3A2026/report.pdf",
+            requests[1].Url);
+        Equal(
+            "Nextcloud copy addresses the new share folder",
+            "https://cloud.example.test/remote.php/dav/files/user/NC%20Connector/share/report.pdf",
+            requests[1].Headers["Destination"]);
+        Equal("Nextcloud copy never overwrites", "F", requests[1].Headers["Overwrite"]);
     }
 
     private static void TestMissingResourcePreflight()
@@ -1049,11 +1155,15 @@ internal static class FileLinkProtocolTests
     $sources = @(
         $testSource,
         (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Services\FileLinkDavClient.cs"),
+        (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Services\FileLinkDavClient.Browsing.cs"),
+        (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Services\FileLinkDavClient.Copy.cs"),
         (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Services\FileLinkDavClient.Probes.cs"),
         (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Services\FileLinkDavClient.Requests.cs"),
         (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Services\FileLinkShareClient.cs"),
         (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Services\FileLinkShareClient.Recovery.cs"),
+        (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Models\NextcloudStorageEntry.cs"),
         (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Utilities\FileLinkPath.cs"),
+        (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Utilities\NextcloudPath.cs"),
         (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Utilities\FileLinkUploadPolicy.cs"),
         (Join-Path $ProjectRoot "src\NcTalkOutlookAddIn\Utilities\NcJson.cs")
     )

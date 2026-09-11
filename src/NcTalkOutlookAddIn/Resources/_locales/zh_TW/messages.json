@@ -1015,5 +1015,65 @@
   },
   "options_update_changelog_fixed": {
     "message": "修復"
+  },
+  "outlook_nextcloud_picker_load_failed": {
+    "message": "無法載入 Nextcloud 資料夾。"
+  },
+  "outlook_sharing_source_my_nextcloud": {
+    "message": "我的 Nextcloud"
+  },
+  "outlook_nextcloud_picker_files_title": {
+    "message": "選取檔案"
+  },
+  "outlook_nextcloud_picker_folder_title": {
+    "message": "選取資料夾"
+  },
+  "outlook_nextcloud_picker_filter_placeholder": {
+    "message": "依名稱篩選..."
+  },
+  "outlook_nextcloud_picker_account_format": {
+    "message": "Nextcloud：$1"
+  },
+  "outlook_nextcloud_picker_column_name": {
+    "message": "名稱"
+  },
+  "outlook_nextcloud_picker_column_size": {
+    "message": "大小"
+  },
+  "outlook_nextcloud_picker_column_modified": {
+    "message": "修改時間"
+  },
+  "outlook_nextcloud_picker_no_selection": {
+    "message": "尚未選取檔案"
+  },
+  "outlook_nextcloud_picker_no_preview": {
+    "message": "無法預覽"
+  },
+  "outlook_nextcloud_picker_close_button": {
+    "message": "關閉"
+  },
+  "outlook_nextcloud_picker_select_files_button": {
+    "message": "選取檔案"
+  },
+  "outlook_nextcloud_picker_select_folder_button": {
+    "message": "選取此資料夾"
+  },
+  "outlook_nextcloud_picker_loading": {
+    "message": "正在載入資料夾..."
+  },
+  "outlook_nextcloud_picker_reading_folder": {
+    "message": "正在讀取資料夾內容..."
+  },
+  "outlook_nextcloud_picker_storage_used": {
+    "message": "儲存空間：已使用 $1"
+  },
+  "outlook_nextcloud_picker_storage_of": {
+    "message": "儲存空間：已使用 $1，共 $2"
+  },
+  "outlook_sharing_add_nextcloud_files": {
+    "message": "從「我的 Nextcloud」選取檔案..."
+  },
+  "outlook_sharing_add_nextcloud_folder": {
+    "message": "從「我的 Nextcloud」選取資料夾..."
   }
 }

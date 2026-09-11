@@ -99,6 +99,38 @@ namespace NcTalkOutlookAddIn.UI
             _addFolderButton.Click += (s, e) => AddFolder();
             _fileStepActionPanel.Controls.Add(_addFolderButton);
 
+            _addNextcloudFilesButton.Text =
+                Strings.FileLinkWizardAddNextcloudFilesButton;
+            _addNextcloudFilesButton.AutoSize = false;
+            _addNextcloudFilesButton.Size = new Size(150, 28);
+            _addNextcloudFilesButton.Margin = new Padding(
+                0,
+                FileStepButtonGapPixels,
+                0,
+                FileStepButtonGapPixels);
+            _addNextcloudFilesButton.TextAlign =
+                ContentAlignment.MiddleCenter;
+            _addNextcloudFilesButton.Click += (s, e) =>
+                AddNextcloudFiles();
+            _fileStepActionPanel.Controls.Add(
+                _addNextcloudFilesButton);
+
+            _addNextcloudFolderButton.Text =
+                Strings.FileLinkWizardAddNextcloudFolderButton;
+            _addNextcloudFolderButton.AutoSize = false;
+            _addNextcloudFolderButton.Size = new Size(150, 28);
+            _addNextcloudFolderButton.Margin = new Padding(
+                0,
+                0,
+                0,
+                FileStepButtonGapPixels);
+            _addNextcloudFolderButton.TextAlign =
+                ContentAlignment.MiddleCenter;
+            _addNextcloudFolderButton.Click += (s, e) =>
+                AddNextcloudFolder();
+            _fileStepActionPanel.Controls.Add(
+                _addNextcloudFolderButton);
+
             _removeItemButton.Text = Strings.FileLinkWizardRemoveButton;
             _removeItemButton.AutoSize = false;
             _removeItemButton.Size = new Size(150, 28);
@@ -114,6 +146,8 @@ namespace NcTalkOutlookAddIn.UI
             AttachFileQueueDropTarget(_fileListView);
             AttachFileQueueDropTarget(_addFilesButton);
             AttachFileQueueDropTarget(_addFolderButton);
+            AttachFileQueueDropTarget(_addNextcloudFilesButton);
+            AttachFileQueueDropTarget(_addNextcloudFolderButton);
             AttachFileQueueDropTarget(_removeItemButton);
 
             _fileStepContentLayout.ResumeLayout(false);
@@ -139,6 +173,12 @@ namespace NcTalkOutlookAddIn.UI
                 _fileStepContentLayout.ColumnStyles[1].Width = actionColumnWidth;
                 ApplyFileStepButtonSize(_addFilesButton, actionColumnWidth);
                 ApplyFileStepButtonSize(_addFolderButton, actionColumnWidth);
+                ApplyFileStepButtonSize(
+                    _addNextcloudFilesButton,
+                    actionColumnWidth);
+                ApplyFileStepButtonSize(
+                    _addNextcloudFolderButton,
+                    actionColumnWidth);
                 ApplyFileStepButtonSize(_removeItemButton, actionColumnWidth);
             }
             int maxInfoWidth = Math.Max(120, clientSize.Width - (FileStepPaddingPixels * 2));
@@ -164,11 +204,18 @@ namespace NcTalkOutlookAddIn.UI
         {
             int textPadding = ScaleLogical(40);
             int minWidth = ScaleLogical(FileStepButtonColumnMinWidthPixels);
-            int maxTextWidth = Math.Max(
-                Math.Max(
-                    TextRenderer.MeasureText(_addFilesButton.Text ?? string.Empty, _addFilesButton.Font).Width,
-                    TextRenderer.MeasureText(_addFolderButton.Text ?? string.Empty, _addFolderButton.Font).Width),
-                TextRenderer.MeasureText(_removeItemButton.Text ?? string.Empty, _removeItemButton.Font).Width);
+            int maxTextWidth = new[]
+            {
+                _addFilesButton,
+                _addFolderButton,
+                _addNextcloudFilesButton,
+                _addNextcloudFolderButton,
+                _removeItemButton
+            }
+                .Max(
+                    button => TextRenderer.MeasureText(
+                        button.Text ?? string.Empty,
+                        button.Font).Width);
 
             return Math.Max(minWidth, maxTextWidth + textPadding);
         }
@@ -250,6 +297,46 @@ namespace NcTalkOutlookAddIn.UI
             }
         }
 
+        private void AddNextcloudFiles()
+        {
+            using (var dialog = new NextcloudFilePickerForm(
+                _service,
+                NextcloudFilePickerMode.Files))
+            {
+                if (dialog.ShowDialog(this) != DialogResult.OK)
+                {
+                    return;
+                }
+                AddSelections(
+                    dialog.SelectedEntries
+                        .Where(entry => entry != null && !entry.IsDirectory)
+                        .Select(FileLinkSelection.FromNextcloudFile));
+            }
+        }
+
+        private void AddNextcloudFolder()
+        {
+            using (var dialog = new NextcloudFilePickerForm(
+                _service,
+                NextcloudFilePickerMode.Folder))
+            {
+                if (dialog.ShowDialog(this) != DialogResult.OK
+                    || dialog.SelectedEntries.Count == 0)
+                {
+                    return;
+                }
+                NextcloudStorageEntry root =
+                    dialog.SelectedEntries[0];
+                AddSelections(
+                    new[]
+                    {
+                        FileLinkSelection.FromNextcloudFolder(
+                            root,
+                            dialog.SelectedEntries.Skip(1))
+                    });
+            }
+        }
+
         private void RemoveSelection()
         {
             if (_fileListView.SelectedItems.Count == 0)
@@ -286,7 +373,14 @@ namespace NcTalkOutlookAddIn.UI
             {
                 return;
             }
-            var pendingSelections = selections.Where(s => s != null && !string.IsNullOrWhiteSpace(s.LocalPath)).ToList();
+            var pendingSelections = selections
+                .Where(
+                    selection => selection != null
+                                 && (selection.Source
+                                     == FileLinkSelectionSource.Nextcloud
+                                     || !string.IsNullOrWhiteSpace(
+                                         selection.LocalPath)))
+                .ToList();
             if (pendingSelections.Count == 0)
             {
                 return;
@@ -294,7 +388,7 @@ namespace NcTalkOutlookAddIn.UI
             var existingPaths = _attachmentMode
                 ? null
                 : new HashSet<string>(
-                    _items.Select(i => i.LocalPath ?? string.Empty),
+                    _items.Select(i => i.IdentityPath),
                     StringComparer.OrdinalIgnoreCase);
 
             int requestedCount = pendingSelections.Count;

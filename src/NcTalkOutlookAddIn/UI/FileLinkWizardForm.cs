@@ -80,6 +80,8 @@ namespace NcTalkOutlookAddIn.UI
         private readonly Label _expireHintLabel = new Label();
         private readonly Button _addFilesButton = new Button();
         private readonly Button _addFolderButton = new Button();
+        private readonly Button _addNextcloudFilesButton = new Button();
+        private readonly Button _addNextcloudFolderButton = new Button();
         private readonly Button _removeItemButton = new Button();
         private readonly Label _attachmentModeInfoLabel = new Label();
         private readonly CheckBox _noteToggleCheckBox = new CheckBox();
@@ -622,7 +624,12 @@ namespace NcTalkOutlookAddIn.UI
                     continue;
                 }
 
-                validSelections.Add(new FileLinkSelection(selection.SelectionType, selection.LocalPath));
+                validSelections.Add(
+                    selection.Source == FileLinkSelectionSource.Local
+                        ? new FileLinkSelection(
+                            selection.SelectionType,
+                            selection.LocalPath)
+                        : selection);
             }
 
             AddSelections(validSelections);

@@ -8,9 +8,9 @@ The Outlook flow should match the Thunderbird sharing window wherever native Out
 - [ ] Show folders as an expandable tree. Files need matching icons, their size and status, and a remove button.
 - [ ] Match Thunderbird's summary row: entries, sources and total size on the left; storage limit and occupied Nextcloud storage on the right.
 - [ ] Match the queue states shown in Thunderbird: selected folders start expanded, files show “Waiting” before upload, and Back, Upload, Next and Cancel follow the same enabled states.
-- [ ] Build a Nextcloud file and folder picker. Match Thunderbird's path, search, name, size, modified date, file icons, preview state and storage display.
-- [ ] Copy selected Nextcloud files and folders into the share on the server. Leave the originals untouched and do not download them first.
-- [ ] Handle local and Nextcloud items in the same share. Duplicate names, empty folders, progress, cancellation and cleanup must keep working.
+- [x] Build a Nextcloud file and folder picker. Match Thunderbird's path, search, name, size, modified date, file icons, preview state and storage display.
+- [x] Copy selected Nextcloud files and folders into the share on the server. Leave the originals untouched and do not download them first.
+- [x] Handle local and Nextcloud items in the same share. Duplicate names, empty folders, progress, cancellation and cleanup must keep working.
 - [ ] Keep attachment automation on the same queue.
 - [ ] Add every new text to all existing translations.
 - [ ] Check keyboard use and both light and dark Windows themes.

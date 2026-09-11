@@ -14,7 +14,8 @@ namespace NcTalkOutlookAddIn.Services
     {
         Direct,
         Chunked,
-        Bulk
+        Bulk,
+        ServerCopy
     }
 
     internal sealed class FileLinkPlannedFile
@@ -34,9 +35,35 @@ namespace NcTalkOutlookAddIn.Services
             Transport = FileLinkUploadTransport.Direct;
         }
 
+        internal FileLinkPlannedFile(
+            FileLinkSelection selection,
+            string nextcloudSourcePath,
+            string remotePath,
+            long length,
+            DateTime lastWriteTimeUtc,
+            FileLinkUploadTransport transport)
+        {
+            if (transport != FileLinkUploadTransport.ServerCopy)
+            {
+                throw new ArgumentException(
+                    "Remote files must use the server-copy transport.",
+                    "transport");
+            }
+
+            Selection = selection;
+            NextcloudSourcePath = nextcloudSourcePath ?? string.Empty;
+            RemotePath = remotePath ?? string.Empty;
+            Length = length;
+            LastWriteTimeUtc = lastWriteTimeUtc;
+            Transport = transport;
+            LocalPath = string.Empty;
+        }
+
         internal FileLinkSelection Selection { get; private set; }
 
         internal string LocalPath { get; private set; }
+
+        internal string NextcloudSourcePath { get; private set; }
 
         internal string RemotePath { get; private set; }
 
@@ -100,7 +127,16 @@ namespace NcTalkOutlookAddIn.Services
                         .Where(
                             file =>
                                 file.Transport
-                                != FileLinkUploadTransport.Bulk)
+                                == FileLinkUploadTransport.Direct
+                                || file.Transport
+                                == FileLinkUploadTransport.Chunked)
+                        .ToList());
+            ServerCopyFiles =
+                new ReadOnlyCollection<FileLinkPlannedFile>(
+                    Files
+                        .Where(
+                            file => file.Transport
+                                    == FileLinkUploadTransport.ServerCopy)
                         .ToList());
             DirectoriesToCreate = new ReadOnlyCollection<string>(
                 new List<string>(
@@ -140,6 +176,12 @@ namespace NcTalkOutlookAddIn.Services
 
         internal ReadOnlyCollection<FileLinkPlannedFile>
             DirectAndChunkedFiles
+        {
+            get;
+            private set;
+        }
+
+        internal ReadOnlyCollection<FileLinkPlannedFile> ServerCopyFiles
         {
             get;
             private set;
